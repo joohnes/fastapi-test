@@ -4,6 +4,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+
 class JobBase(BaseModel):
     title: Optional[str] = None
     company: Optional[str] = None
@@ -12,11 +13,13 @@ class JobBase(BaseModel):
     description: Optional[str] = None
     date_posted: Optional[date] = datetime.now().date()
 
+
 class JobCreate(JobBase):
     title: str
     company: str
     location: str
     description: str
+
 
 class ShowJob(JobBase):
     title: str
