@@ -1,6 +1,11 @@
+from typing import List
+
 from db.models.jobs import Job
 from db.repository.jobs import create_new_job
+from db.repository.jobs import delete_job_by_id
+from db.repository.jobs import list_jobs
 from db.repository.jobs import retreive_job
+from db.repository.jobs import update_job_by_id
 from db.session import get_db
 from fastapi import APIRouter
 from fastapi import Depends
@@ -29,3 +34,33 @@ def read_job(id: int, db: Session = Depends(get_db)):
             detail=f"Job with this id {id} does not exist",
         )
     return job
+
+
+@router.get("/all", response_model=List[ShowJob])
+def read_jobs(db: Session = Depends(get_db)):
+    return list_jobs(db=db)
+
+
+@router.put("/update/{id}")
+def update_job(id: int, job: JobCreate, db: Session = Depends(get_db)):
+    current_user = 1
+    message = update_job_by_id(id=id, job=job, db=db, owner_id=current_user)
+    if not message:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"Job with id {id} not found"
+        )
+    return {"msg": "Successfully updated data."}
+
+
+from db.repository.jobs import delete_job_by_id
+
+
+@router.delete("/delete/{id}")
+def delete_job(id: int, db: Session = Depends(get_db)):
+    current_user_id = 1
+    message = delete_job_by_id(id=id, db=db, owner_id=current_user_id)
+    if not message:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"Job with id {id} not found"
+        )
+    return {"msg": "Successfully deleted."}
